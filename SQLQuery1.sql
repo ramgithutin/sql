@@ -82,11 +82,21 @@ values
 ('A010','Santakumar','Chennai',0.14,'007-22388644',null),
 ('A012','Lucida','San Jose',0.12,'0444-52981425',null),
 ('A005','Anderson','Brisban',0.13,'045-21447739',null),
-('A001','Subbaro','Bangalore',0.14,'077-12346674'null);
+('A001','Subbaro','Bangalore',0.14,'077-12346674',null);
 select * from agents;
 create table orders(ORD_NUM INT, ORD_AMOUNT INT,ADVANCE_AMOINT INT, ODR_DATE varchar(20), CUST_CODE VARCHAR(10), AGENT_CODE VARCHAR(10),ORD_DESCRIPTION VARCHAR(20));
 select * from orders;
-insert into orders	    values(200114,3500,2000,'15-AUG-08','C00002','A008',NULL),(200122,2500,400,'16-SEP-08','C00003','A004',NULL),(200118,500,100,'20-JUL-08','C00023','A006',NULL),(200119,4000,700,'16-SEP-08','C00007','A010',NULL),(200121,1500,600,'23-SEP-08','C00008','A004',NULL),(200130,2500,400,'30-JUL-08','C00025','A011',NULL),(200134,4200,1800,'25-SEP-08','C00004','A005',NULL),(200108,4000,600,'15-FEB-08','C00008','A004',NULL),(200103,1500,700,'15-MAY-08','C00021','A005',NULL);
+insert into orders
+	    values
+(200114,3500,2000,'15-AUG-08','C00002','A008',NULL),
+(200122,2500,400,'16-SEP-08','C00003','A004',NULL),
+(200118,500,100,'20-JUL-08','C00023','A006',NULL),
+(200119,4000,700,'16-SEP-08','C00007','A010',NULL),
+(200121,1500,600,'23-SEP-08','C00008','A004',NULL),
+(200130,2500,400,'30-JUL-08','C00025','A011',NULL),
+(200134,4200,1800,'25-SEP-08','C00004','A005',NULL),
+(200108,4000,600,'15-FEB-08','C00008','A004',NULL),
+(200103,1500,700,'15-MAY-08','C00021','A005',NULL);
 select * from orders;
 select a.AGENT_CODE, a.AGENT_NAME,sum(b.ADVANCE_AMOINT) as "SUM(ORDER.ADVANCE_AMOUNT)" from orders b, agents a
 where a.AGENT_CODE=b.AGENT_CODE
@@ -107,3 +117,40 @@ where food.COMPANY_ID=comp.COMPANY_ID and comp.COMPANY_CITY='London';
 --1. 'a', and 'b' are the aliases of 'despatch' and 'orders',
 --2. 'ord_amount' of 'despatch' and 'orders' must be same,
 --3. the same combination of 'des_num' and 'des_date' of 'despatch' should be grouped,
+create table despatch(DES_NUM VARCHAR(10) NOT NULL, DES_DATE VARCHAR(10),DES_AMOUNT INT ,ORD_NUM INT, ORD_DATE VARCHAR(10), ORD_AMOUNT INT, AGENT_CODE VARCHAR(10));
+insert into despatch
+values
+('D002','10-JUN-08',2000,200112,'30-MAY-08',2000,'A007'),
+('D005','19-OCT-08',4000,200119,'16-SEP-08',4000,'A0z'),
+('D001','12-JAN-08',3800,200113,'10-JUN-08',4000,'A002'),
+('D003','25-OCT-08',900,200117,'20-OCT-08',800,'A001'),
+('D004','20-AUG-08',450,200120,'20-JUL-08',500,'A002'),
+('D006','24-JUL-08',4500,200128,'20-JUL-08',3500,'A002');
+select * from despatch;
+select a.DES_NUM,a.DES_DATE,sum(b.ORD_AMOUNT) AS "SUM(B.ORD_AMOUNT)" FROM orders b,despatch a
+where a.ORD_AMOUNT=b.ORD_AMOUNT
+group by a.DES_NUM,a.DES_DATE;
+/*11.To get 'ord_num', 'ord_amount', 'ord_date', 'cust_code' and 'agent_code' from the table 'orders' with following conditions:
+in the outer query:
+'agent_code' of 'orders' table must be in the list within IN operator in inner query :
+in inner query:
+'working_area' of 'agents' table must be 'Bangalore',
+*/
+SELECT ORD_NUM,ORD_AMOUNT,ODR_DATE,CUST_CODE, AGENT_CODE FROM orders
+WHERE AGENT_CODE NOT IN(SELECT AGENT_CODE FROM agents WHERE WORKING_AREA='Bangalore');
+--12.The following query display cust_country and number of customers for the same grade for each cust_country, with the following condition -
+--1. number of customer for a same 'grade' must be more than 2,
+create table customer2(CUST_CODE VARCHAR(10), CUST_NAME VARCHAR(20),CUST_CITY VARCHAR(20),WORKING_AREA VARCHAR(20), CUST_COUNTRY VARCHAR(10),GRADE INT,OPENING_AMT DECIMAL(7,2),RECEIVE_AMT DECIMAL(7,2));
+insert into customer2
+values
+('C00013','Holmes','London','London','UK',2,6000,5000),
+('C00001','Micheal','New York','New York','USA',2,3000,5000),
+('C00020','Albert','New York','New York','USA',2,5000,7000),
+('C00025','Ravindarn','Bangalore','Bangalore','India',2,5000,7000),
+('C00024','Cook','London','London','UK',2,4000,9000),
+('C00015','Stuart','London','London','UK',2,6000,8000),
+('C00002','Bolt','New York','New York','USA',2,5000,7000);
+select * from customer2;
+select CUST_COUNTRY,COUNT(GRADE) from customer2
+group by CUST_COUNTRY
+having COUNT(grade)>2;
